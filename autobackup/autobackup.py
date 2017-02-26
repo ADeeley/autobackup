@@ -18,39 +18,58 @@ from datetime import date
 import os
 import shutil
 
-# ----------- Adjustable vartiables --------------
 
-from_dir = "F:\\mystuff"
-archive_path = "I:\\mystuff_archive"
-
-# ----------- Assertions and prerequisites -----------
-
-# Check if the destination directory exists
-assert os.path.exists("I:\\"), "\n\n ** Destination drive not attached. Attach" \
-                               "drive %s before proceeding **\n" % "I:\\"  \
-
-# check if the from directory exists
-assert os.path.exists(from_dir), "\n\n ** From folder \"%s\" does not exist." \
-                                       "Check directory spelling. **\n" % from_dir  \
-                               
-# If the archive has not yet been made, create this directory                               
-if not os.path.exists(archive_path):
-    os.mkdir(archive_path)
+def gen_dest_folder(src, dst):
+    """ Checks that the folders given exist and creates a 
+        new folder with today's date for backup.
+        * Pre: scr == str and dst == str
+        * Post: dst is valid file path
+    """
+    # Check if the destination directory exists
+    assert os.path.exists(dst[:3]), """\n\n ** Destination drive not attached. Attach
+                                        drive {0} before proceeding **\n""".format(dst[:3]) 
     
-# creat destination folder name and date
-date_today = date.today().isoformat()
-dest_folder = os.path.join(archive_path, date_today)
-
-assert not os.path.exists(dest_folder), "Already backed up today."
- 
-# back that thang up
-print("Backing up.")
-try:
-    shutil.copytree(from_dir, dest_folder)    
-except shutil.Error, exc:
-    errors = exc.args[0]
-    for error in errors:
-        src, dst, msg = error
-        print(src, dst, msg)
+    if not os.path.exists(dst):
+        os.mkdir(dst)
     
-print("All done backing up.")
+    # creat destination folder name and date
+    date_today = date.today().isoformat()
+    dst = os.path.join(dst, date_today)
+
+    if os.path.exists(dst):
+        answer = input("Already backed up today. Back up again? (y/n)\n")
+        if answer == "y":
+            return dst
+
+
+def backup(dst):
+    """ Backs up the source file to the destination file.
+        * Pre - dst == string
+    """ 
+    print("Backing up.")
+    errors = []
+
+    try:
+        shutil.copytree(src, dst)    
+    except WindowsError:
+        pass
+    except OSError as why:
+        errors.extend((src, dst, str(why)))
+    if errors:
+        raise Error(errors)
+    
+    print("All done backing up.")
+
+
+def auto_backup(src, dst):
+    """ Runs the autobackup process """
+   
+    assert os.path.exists(src), """\n\n ** From folder {0} does not exist.
+                                    Check directory spelling. **\n""".format(fromdir)                        
+    newDst = gen_dest_folder(src, dst)
+    backup(src, newDst)
+
+
+src = "F:\\mystuff"
+dst = "G:\\mystuff_archive"
+auto_backup(src, dst)
