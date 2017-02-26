@@ -1,4 +1,4 @@
-"""Copyright (C) 2016 Adam Deeley
+"""Copyright (C) 2017 Adam Deeley
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ def gen_dest_folder(src, dst):
 
     if not os.path.exists(dst):
         os.mkdir(dst)
+        assert os.path.isdir(dst) == True, "Failed to create the destination path."
     else:
         answer = input("Already backed up today. Back up again? (y/n)\n")
         if answer == "y":
@@ -47,7 +48,8 @@ def backup(src, dst):
         * Pre - dst == string
     """ 
     print("Backing up.")
-
+   
+    errors = []
     try:
         shutil.copytree(src, dst)    
     except WindowsError:
@@ -57,7 +59,9 @@ def backup(src, dst):
     if errors:
         raise Error(errors)
     
-    print("All done backing up.")
+    print("All done backing up. Files moved:\n")
+    for folder in os.listdir(dst):
+        print(folder, "\n")
 
 
 def auto_backup(src, dst):
@@ -66,11 +70,12 @@ def auto_backup(src, dst):
     assert os.path.exists(dst[:3]), """\n\n ** Destination drive not attached. Attach
                                         drive {0} before proceeding **\n""".format(dst[:3]) 
     assert os.path.exists(src), """\n\n ** From folder {0} does not exist.
-                                    Check directory spelling. **\n""".format(fromdir)                        
+                                    Check directory spelling. **\n""".format(src)                        
     newDst = gen_dest_folder(src, dst)
     backup(src, newDst)
 
 
-src = "F:\\mystuff"
+#src = "F:\\mystuff"
 dst = "G:\\mystuff_archive"
+src = "F:\\test" 
 auto_backup(src, dst)
