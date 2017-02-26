@@ -22,32 +22,31 @@ import shutil
 def gen_dest_folder(src, dst):
     """ Checks that the folders given exist and creates a 
         new folder with today's date for backup.
-        * Pre: scr == str and dst == str
+        * Pre: Assumes that src and dst are valid system locations
+          Pre: src == str and dst == str
         * Post: dst is valid file path
     """
-    # Check if the destination directory exists
-    assert os.path.exists(dst[:3]), """\n\n ** Destination drive not attached. Attach
-                                        drive {0} before proceeding **\n""".format(dst[:3]) 
-    
-    if not os.path.exists(dst):
-        os.mkdir(dst)
-    
-    # creat destination folder name and date
+    # Generate destination folder name and date
     date_today = date.today().isoformat()
     dst = os.path.join(dst, date_today)
 
-    if os.path.exists(dst):
+    if not os.path.exists(dst):
+        os.mkdir(dst)
+    else:
         answer = input("Already backed up today. Back up again? (y/n)\n")
         if answer == "y":
             return dst
+        else:
+            print("Backup procedure aborted")
+            quit()
+    return dst
 
 
-def backup(dst):
+def backup(src, dst):
     """ Backs up the source file to the destination file.
         * Pre - dst == string
     """ 
     print("Backing up.")
-    errors = []
 
     try:
         shutil.copytree(src, dst)    
@@ -63,7 +62,9 @@ def backup(dst):
 
 def auto_backup(src, dst):
     """ Runs the autobackup process """
-   
+    # Check if the destination directory exists
+    assert os.path.exists(dst[:3]), """\n\n ** Destination drive not attached. Attach
+                                        drive {0} before proceeding **\n""".format(dst[:3]) 
     assert os.path.exists(src), """\n\n ** From folder {0} does not exist.
                                     Check directory spelling. **\n""".format(fromdir)                        
     newDst = gen_dest_folder(src, dst)
