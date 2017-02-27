@@ -26,6 +26,7 @@ def gen_dest_folder(src, dst):
           Pre: src == str and dst == str
         * Post: dst is valid file path
     """
+    
     # Generate destination folder name and date
     date_today = date.today().isoformat()
     dst = os.path.join(dst, date_today)
@@ -45,24 +46,13 @@ def gen_dest_folder(src, dst):
 
 def backup(src, dst):
     """ Backs up the source file to the destination file.
-        * Pre - dst == string
-    """ 
+        * Pre - dst == string""" 
     print("Backing up.")
    
     errors = []
-    try:
-        shutil.copytree(src, dst)    
-    except WindowsError:
-        pass
-    except OSError as why:
-        errors.extend((src, dst, str(why)))
-    if errors:
-        raise Error(errors)
-    
-    print("All done backing up. Files moved:\n")
-    for folder in os.listdir(dst):
-        print(folder, "\n")
 
+    shutil.copytree(src, dst)    
+ 
 
 def auto_backup(src, dst):
     """ Runs the autobackup process """
